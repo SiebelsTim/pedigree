@@ -19,6 +19,7 @@
     }
   },
   "require": {
-    "nikic/php-parser": "^4.13"
+    "nikic/php-parser": "^4.13",
+    "nette/php-generator": "^4.0"
   }
 }

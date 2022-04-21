@@ -2,7 +2,8 @@
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
+use PhpParser\ParserFactory;
+use PhpParser\PrettyPrinter\Standard;
 use PHPUnit\Framework\Assert;
 use Siebels\Pedigree\Application;
 use Siebels\Pedigree\Config;
@@ -15,7 +16,8 @@ use Siebels\Pedigree\IO\InMemoryOutputStream;
  */
 class FeatureContext implements Context
 {
-    private ?string $code = null;
+    /** @var array<File> */
+    private array $files = [];
     private ?int $exitCode = null;
     private ?string $output = null;
     private InMemoryOutputStream $outputStream;
@@ -37,7 +39,7 @@ class FeatureContext implements Context
      */
     public function iHaveTheFollowingCode(PyStringNode $code): void
     {
-        $this->code = $code->getRaw();
+        $this->files[] = new File("<?php\n" . $code->getRaw());
     }
 
     /**
@@ -45,7 +47,7 @@ class FeatureContext implements Context
      */
     public function iRunPedigree(): void
     {
-        $this->exitCode = (new Application(new Config($this->outputStream)))->run(new Files([new File($this->code)]));
+        $this->exitCode = (new Application(new Config($this->outputStream)))->run(new Files($this->files));
     }
 
     /**
@@ -63,6 +65,12 @@ class FeatureContext implements Context
     {
         $expect = trim($output->getRaw());
         $actual = trim($this->outputStream->getContent());
-        Assert::assertEquals($expect, $actual);
+
+        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $expectAST = $parser->parse("<?php\n" . $expect);
+        $actualAST = $parser->parse($actual);
+
+        $prettyPrinter = new Standard();
+        Assert::assertEquals($prettyPrinter->prettyPrintFile($expectAST), $prettyPrinter->prettyPrintFile($actualAST));
     }
 }
