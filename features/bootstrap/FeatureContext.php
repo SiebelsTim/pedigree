@@ -19,8 +19,11 @@ class FeatureContext implements Context
     /** @var array<File> */
     private array $files = [];
     private ?int $exitCode = null;
-    private ?string $output = null;
     private InMemoryOutputStream $outputStream;
+    /**
+     * @var array<string>
+     */
+    private array $components = [];
 
     /**
      * Initializes context.
@@ -47,7 +50,14 @@ class FeatureContext implements Context
      */
     public function iRunPedigree(): void
     {
-        $this->exitCode = (new Application(new Config($this->outputStream)))->run(new Files($this->files));
+        $config = (new Config())
+            ->setOutput($this->outputStream)
+        ;
+        foreach ($this->components as $component) {
+            $config->addComponent($component);
+        }
+
+        $this->exitCode = (new Application())->run($config, new Files($this->files));
     }
 
     /**
@@ -61,7 +71,7 @@ class FeatureContext implements Context
     /**
      * @Then I expect this output
      */
-    public function iExpectThisOutput(PyStringNode $output)
+    public function iExpectThisOutput(PyStringNode $output): void
     {
         $expect = trim($output->getRaw());
         $actual = trim($this->outputStream->getContent());
@@ -72,5 +82,13 @@ class FeatureContext implements Context
 
         $prettyPrinter = new Standard();
         Assert::assertEquals($prettyPrinter->prettyPrintFile($expectAST), $prettyPrinter->prettyPrintFile($actualAST));
+    }
+
+    /**
+     * @Given The component is :component
+     */
+    public function theComponentIs(string $componentClassName): void
+    {
+        $this->components[] = $componentClassName;
     }
 }

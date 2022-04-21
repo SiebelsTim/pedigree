@@ -2,23 +2,31 @@
 
 namespace Siebels\Pedigree\Graph;
 
+use Siebels\Pedigree\Graph\Model\Clazz;
+
 final class Graph
 {
-    // map from class-string to array of class-string
-    private array $dependencies = [];
+    /**
+     * @var array<string, Clazz>
+     */
+    private array $classes = [];
 
+    /**
+     * @param string $classString
+     * @return array<Clazz>
+     */
     public function getDependencies(string $classString): array
     {
-        return $this->dependencies[$classString];
+        return array_map(fn (string $classString) => $this->getClass($classString), $this->getClass($classString)->getDependencies());
     }
 
-    public function addEntry(string $classString, array $dependencies): void
+    public function getClass(string $class): Clazz
     {
-        $this->dependencies[$classString] = $dependencies;
+        return $this->classes[$class];
     }
 
-    public function getEntries(): array
+    public function addEntry(Clazz $class): void
     {
-        return $this->dependencies;
+        $this->classes[$class->getFqcn()] = $class;
     }
 }

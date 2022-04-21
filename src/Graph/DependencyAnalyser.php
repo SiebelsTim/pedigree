@@ -6,10 +6,9 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
-use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\Parser;
-use PhpParser\ParserFactory;
+use Siebels\Pedigree\Graph\Model\Clazz;
 use Siebels\Pedigree\IO\File;
+use Siebels\Pedigree\Parser;
 
 final class DependencyAnalyser
 {
@@ -19,7 +18,7 @@ final class DependencyAnalyser
     public function __construct()
     {
         $this->graph = new Graph();
-        $this->parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $this->parser = new Parser();
     }
 
     public function readFile(File ...$files): void
@@ -31,41 +30,25 @@ final class DependencyAnalyser
 
     private function readSingleFile(File $file): void
     {
-        $stmts = $this->parse($file);
+        $stmts = $this->parser->parse($file);
 
         $nodeTraverser = new NodeTraverser();
-        $finder = new FindingVisitor(fn(Node $node) => $node instanceof Class_);
+        $finder = new FindingVisitor(fn(Node $node) => $node instanceof Class_ || $node instanceof Node\Stmt\Interface_);
         $nodeTraverser->addVisitor($finder);
         $nodeTraverser->traverse($stmts);
 
         /** @var Class_ $foundNode */
         foreach ($finder->getFoundNodes() as $foundNode) {
-            if (null === $ctor = $foundNode->getMethod('__construct')) {
-                $this->graph->addEntry($foundNode->namespacedName->toString(), []);
-            } else if ([] === $params = $ctor->getParams()) {
-                $this->graph->addEntry($foundNode->namespacedName->toString(), []);
-            } else {
-                $this->graph->addEntry($foundNode->namespacedName->toString(), array_map(fn (Node\Param $param) => $param->type?->toString(), $params));
+            $class = new Clazz($foundNode->namespacedName->toString(), $file, []);
+            if (null !== ($ctor = $foundNode->getMethod('__construct')) && [] !== ($params = $ctor->getParams())) {
+                $class->addDependency(...array_map(fn(Node\Param $param) => $param->type?->toString(), $params));
             }
+            $this->graph->addEntry($class);
         }
     }
 
     public function getGraph(): Graph
     {
         return $this->graph;
-    }
-
-    /**
-     * @return Node\Stmt[]
-     */
-    private function parse(File $file): array
-    {
-        $stmts = $this->parser->parse($file->getContent());
-        $nameResolver = new NameResolver();
-        $nodeTraverser = new NodeTraverser();
-        $nodeTraverser->addVisitor($nameResolver);
-
-        // Resolve names
-        return $nodeTraverser->traverse($stmts);
     }
 }

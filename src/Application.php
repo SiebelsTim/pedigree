@@ -7,38 +7,68 @@ use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
 use Nette\PhpGenerator\Printer;
 use Nette\PhpGenerator\Property;
+use Siebels\Pedigree\Graph\ComponentFinder;
 use Siebels\Pedigree\Graph\DependencyAnalyser;
+use Siebels\Pedigree\Graph\Model\Clazz;
 use Siebels\Pedigree\IO\Files;
 
 final class Application {
-    public function __construct(
-        private Config $config,
-    ){
+
+    private DependencyAnalyser $dependencyAnalyser;
+    private ComponentFinder $componentFinder;
+
+    public function __construct()
+    {
+        $this->dependencyAnalyser = new DependencyAnalyser();
+        $this->componentFinder = new ComponentFinder();
     }
 
-	public function run(Files $files): int
+    public function run(Config $config, Files $files): int
     {
-        $o = $this->config->getOutput();
-        $dependencyAnalyser = new DependencyAnalyser();
-        $dependencyAnalyser->readFile(...$files->getFiles());
-        $graph = $dependencyAnalyser->getGraph();
+        $o = $config->getOutput();
+        $this->dependencyAnalyser->readFile(...$files->getFiles());
+        $graph = $this->dependencyAnalyser->getGraph();
 
-        $file = $this->createFile($graph);
+        foreach ($config->getComponents() as $component) {
+            $file = $this->createComponent($component, $graph);
+            $o->write((new Printer())->printFile($file));
+        }
 
-        $o->write((new Printer())->printFile($file));
-
-		return 0;
+        return 0;
 	}
 
-    private function createFile(Graph\Graph $graph): PhpFile
+    private function createComponent(string $componentClassString, Graph\Graph $graph): PhpFile
     {
         $file = new PhpFile();
         $ns = $file->addNamespace('Pedigree');
-        $class = $ns->addClass('ServiceLocator');
-        foreach ($graph->getEntries() as $classString => $dependencies) {
-            $this->createMethod($dependencies, $classString, $class);
+        $class = $ns->addClass($this->getComponentName($componentClassString));
+        $class->addImplement($componentClassString);
+
+        $component = $this->componentFinder->findComponent($componentClassString, $graph);
+        foreach ($component->getMethods() as $method) {
+            $callsMethod = $this->getMethodNameForClass($method->getReturnType());
+            $this->createMethod($class, $method->getName(), sprintf('return $this->%s();', $callsMethod), $method->getReturnType())
+                ->setPublic()
+            ;
+            $this->createMethodRecursively($method->getReturnType(), $graph, $class);
         }
+
         return $file;
+    }
+
+    private $existingMethods = [];
+    private function createMethodRecursively(string $classString, Graph\Graph $graph, ClassType $class): void
+    {
+        if (isset($this->existingMethods[$classString])) {
+            return;
+        }
+
+        $dependencies = $graph->getDependencies($classString);
+        foreach ($dependencies as $dependency) {
+            $this->createMethodRecursively($dependency->getFqcn(), $graph, $class);
+        }
+        $this->createDependencyMethod(array_map(fn(Clazz $clazz) => $clazz->getFqcn(), $dependencies), $classString, $class);
+        $this->existingMethods[$classString] = $classString;
     }
 
     /**
@@ -46,7 +76,7 @@ final class Application {
      * @param string $classString
      * @param ClassType $class
      */
-    private function createMethod(mixed $dependencies, string $classString, ClassType $class): void
+    private function createDependencyMethod(mixed $dependencies, string $classString, ClassType $class): void
     {
         $propertyName = $this->getPropertyNameForClass($classString);
         $property = (new Property($propertyName))
@@ -56,14 +86,22 @@ final class Application {
             ->setValue(null)
         ;
         $class->addMember($property);
-        $method = (new Method($this->getMethodNameForClass($classString)))
-            ->setPublic()
-            ->setReturnType($classString)
-        ;
-        $class->addMember($method);
 
         $dependencyParams = implode(', ', array_map(fn(string $dependency) => sprintf('$this->%s()', $this->getMethodNameForClass($dependency)), $dependencies));
-        $method->addBody("return \$this->$propertyName ??= new \\$classString($dependencyParams);");
+        $body = "return \$this->$propertyName ??= new \\$classString($dependencyParams);";
+        $this->createMethod($class, $this->getMethodNameForClass($classString), $body, $classString);
+    }
+
+    private function createMethod(ClassType $class, string $name, string $body, string $returnType): Method
+    {
+        $method = (new Method($name))
+            ->setProtected()
+            ->setReturnType($returnType)
+        ;
+        $class->addMember($method);
+        $method->addBody($body);
+
+        return $method;
     }
 
     private function getMethodNameForClass(string $classString): string
@@ -82,5 +120,14 @@ final class Application {
         $ret = str_replace('\\', '_', $className);
 
         return $ret;
+    }
+
+    private function getComponentName(string $componentClassString): string
+    {
+        if (str_contains($componentClassString, '\\')) {
+            $componentClassString = substr($componentClassString, strrpos($componentClassString, '\\')+1);
+        }
+
+        return 'Pedigree' . $componentClassString;
     }
 }
