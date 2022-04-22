@@ -8,6 +8,7 @@ return function(): Config {
 
     $config->addSourcePath('src/');
     $config->addComponent(Component::class);
+    $config->setNamespace('Siebels\\Pedigree\\DependencyInjection');
 
     return $config;
 };

@@ -2,6 +2,7 @@
 <?php
 
 use Siebels\Pedigree\Config;
+use Siebels\Pedigree\DependencyInjection\PedigreeComponent;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -11,4 +12,5 @@ if (file_exists('pedigree.config.php')) {
     $config = new Config();
 }
 
-exit((new Siebels\Pedigree\Application())->run($config));
+$application = (new PedigreeComponent())->getApplication();
+exit($application->run($config));

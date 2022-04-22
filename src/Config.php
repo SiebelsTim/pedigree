@@ -18,6 +18,8 @@ final class Config
      */
     private array $sourcePaths = [];
 
+    private ?string $namespace = null;
+
     public function getOutput(): OutputStream
     {
         return $this->output ??= new StdoutOutputStream();
@@ -58,5 +60,15 @@ final class Config
         $this->sourcePaths[] = $path;
 
         return $this;
+    }
+
+    public function getNamespace(): ?string
+    {
+        return $this->namespace;
+    }
+
+    public function setNamespace(?string $namespace): void
+    {
+        $this->namespace = $namespace;
     }
 }

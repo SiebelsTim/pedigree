@@ -30,17 +30,17 @@ final class Processor {
         $graph = $this->dependencyAnalyser->getGraph();
 
         foreach ($config->getComponents() as $component) {
-            $file = $this->createComponent($component, $graph);
+            $file = $this->createComponent($component, $graph, $config);
             $o->write((new Printer())->printFile($file));
         }
 
         return 0;
 	}
 
-    private function createComponent(string $componentClassString, Graph\Graph $graph): PhpFile
+    private function createComponent(string $componentClassString, Graph\Graph $graph, Config $config): PhpFile
     {
         $file = new PhpFile();
-        $ns = $file->addNamespace('Pedigree');
+        $ns = $file->addNamespace($config->getNamespace() ?? 'Pedigree');
         $class = $ns->addClass($this->getComponentName($componentClassString));
         $class->addImplement($componentClassString);
 
