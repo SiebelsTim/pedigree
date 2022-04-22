@@ -8,18 +8,16 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
 use Siebels\Pedigree\Graph\Model\Clazz;
 use Siebels\Pedigree\IO\File;
-use Siebels\Pedigree\IO\InMemoryFile;
 use Siebels\Pedigree\Parser;
 
 final class DependencyAnalyser
 {
     private Graph $graph;
-    private Parser $parser;
 
-    public function __construct()
-    {
+    public function __construct(
+        private Parser $parser,
+    ) {
         $this->graph = new Graph();
-        $this->parser = new Parser();
     }
 
     public function readFile(File ...$files): void

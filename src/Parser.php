@@ -7,7 +7,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 use Siebels\Pedigree\IO\File;
-use Siebels\Pedigree\IO\InMemoryFile;
 
 class Parser
 {

@@ -7,11 +7,9 @@ use Siebels\Pedigree\IO\FilesystemFile;
 
 final class Application {
 
-    private Processor $processor;
-
-    public function __construct()
-    {
-        $this->processor = new Processor();
+    public function __construct(
+        private Processor $processor
+    ) {
     }
 
     public function run(Config $config): int

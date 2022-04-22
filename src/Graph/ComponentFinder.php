@@ -12,11 +12,9 @@ use Siebels\Pedigree\Parser;
 
 final class ComponentFinder
 {
-    private Parser $parser;
-
-    public function __construct()
-    {
-        $this->parser = new Parser();
+    public function __construct(
+        private Parser $parser,
+    ) {
     }
 
     public function findComponent(string $classString, Graph $graph): Component

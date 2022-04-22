@@ -14,13 +14,10 @@ use Siebels\Pedigree\IO\Files;
 
 final class Processor {
 
-    private DependencyAnalyser $dependencyAnalyser;
-    private ComponentFinder $componentFinder;
-
-    public function __construct()
-    {
-        $this->dependencyAnalyser = new DependencyAnalyser();
-        $this->componentFinder = new ComponentFinder();
+    public function __construct(
+        private DependencyAnalyser $dependencyAnalyser,
+        private ComponentFinder $componentFinder,
+    ) {
     }
 
     public function run(Config $config, Files $files): int
