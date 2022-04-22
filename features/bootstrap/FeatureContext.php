@@ -6,6 +6,7 @@ use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use PHPUnit\Framework\Assert;
 use Siebels\Pedigree\Config;
+use Siebels\Pedigree\DependencyInjection\PedigreeComponent;
 use Siebels\Pedigree\IO\InMemoryFile;
 use Siebels\Pedigree\IO\Files;
 use Siebels\Pedigree\IO\InMemoryOutputStream;
@@ -57,7 +58,8 @@ class FeatureContext implements Context
             $config->addComponent($component);
         }
 
-        $this->exitCode = (new Processor())->run($config, new Files($this->files));
+        $processor = (new PedigreeComponent())->getProcessor();
+        $this->exitCode = $processor->run($config, new Files($this->files));
     }
 
     /**

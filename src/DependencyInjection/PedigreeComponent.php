@@ -45,4 +45,10 @@ class PedigreeComponent implements Component
 	{
 		return $this->_Siebels_Pedigree_Application ??= new \Siebels\Pedigree\Application($this->getSiebels_Pedigree_Processor());
 	}
+
+
+	public function getProcessor(): \Siebels\Pedigree\Processor
+	{
+		return $this->getSiebels_Pedigree_Processor();
+	}
 }
