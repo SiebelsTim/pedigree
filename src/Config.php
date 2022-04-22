@@ -13,6 +13,11 @@ final class Config
      */
     private array $components = [];
 
+    /**
+     * @var array<string>
+     */
+    private array $sourcePaths = [];
+
     public function getOutput(): OutputStream
     {
         return $this->output ??= new StdoutOutputStream();
@@ -36,6 +41,21 @@ final class Config
     public function addComponent(string $component): self
     {
         $this->components[] = $component;
+
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSourcePaths(): array
+    {
+        return $this->sourcePaths;
+    }
+
+    public function addSourcePath(string $path): self
+    {
+        $this->sourcePaths[] = $path;
 
         return $this;
     }

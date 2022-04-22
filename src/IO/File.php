@@ -2,15 +2,7 @@
 
 namespace Siebels\Pedigree\IO;
 
-final class File
+interface File
 {
-    public function __construct(
-        private string $content,
-    ) {
-    }
-
-    public function getContent(): string
-    {
-        return $this->content;
-    }
+    public function getContent(): string;
 }

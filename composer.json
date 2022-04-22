@@ -21,5 +21,8 @@
   "require": {
     "nikic/php-parser": "^4.13",
     "nette/php-generator": "^4.0"
+  },
+  "require-dev": {
+    "humbug/box": "^3.14"
   }
 }

@@ -3,6 +3,7 @@
 namespace Siebels\Pedigree\Graph\Model;
 
 use Siebels\Pedigree\IO\File;
+use Siebels\Pedigree\IO\InMemoryFile;
 
 final class Clazz
 {
@@ -11,8 +12,8 @@ final class Clazz
      */
     public function __construct(
         private string $fqcn,
-        private File $file,
-        private array $dependencies = [],
+        private File   $file,
+        private array  $dependencies = [],
     ) {
     }
 

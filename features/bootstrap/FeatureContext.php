@@ -5,18 +5,18 @@ use Behat\Gherkin\Node\PyStringNode;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
 use PHPUnit\Framework\Assert;
-use Siebels\Pedigree\Application;
 use Siebels\Pedigree\Config;
-use Siebels\Pedigree\IO\File;
+use Siebels\Pedigree\IO\InMemoryFile;
 use Siebels\Pedigree\IO\Files;
 use Siebels\Pedigree\IO\InMemoryOutputStream;
+use Siebels\Pedigree\Processor;
 
 /**
  * Defines application features from the specific context.
  */
 class FeatureContext implements Context
 {
-    /** @var array<File> */
+    /** @var array<InMemoryFile> */
     private array $files = [];
     private ?int $exitCode = null;
     private InMemoryOutputStream $outputStream;
@@ -42,7 +42,7 @@ class FeatureContext implements Context
      */
     public function iHaveTheFollowingCode(PyStringNode $code): void
     {
-        $this->files[] = new File("<?php\n" . $code->getRaw());
+        $this->files[] = new InMemoryFile("<?php\n" . $code->getRaw());
     }
 
     /**
@@ -57,7 +57,7 @@ class FeatureContext implements Context
             $config->addComponent($component);
         }
 
-        $this->exitCode = (new Application())->run($config, new Files($this->files));
+        $this->exitCode = (new Processor())->run($config, new Files($this->files));
     }
 
     /**

@@ -2,12 +2,12 @@
 
 namespace Siebels\Pedigree\IO;
 
-use Siebels\Pedigree\IO\File;
+use Siebels\Pedigree\IO\InMemoryFile;
 
 final class Files
 {
     /**
-     * @param array<File> $files
+     * @param array<InMemoryFile> $files
      */
     public function __construct(
         private array $files,

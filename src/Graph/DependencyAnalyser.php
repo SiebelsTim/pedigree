@@ -8,6 +8,7 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
 use Siebels\Pedigree\Graph\Model\Clazz;
 use Siebels\Pedigree\IO\File;
+use Siebels\Pedigree\IO\InMemoryFile;
 use Siebels\Pedigree\Parser;
 
 final class DependencyAnalyser

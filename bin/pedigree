@@ -1,6 +1,14 @@
 #!/usr/bin/env php
 <?php
 
+use Siebels\Pedigree\Config;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
-exit((new Siebels\Pedigree\Application())->run());
+if (file_exists('pedigree.config.php')) {
+    $config = (require 'pedigree.config.php')();
+} else {
+    $config = new Config();
+}
+
+exit((new Siebels\Pedigree\Application())->run($config));
