@@ -12,12 +12,6 @@ class PedigreeComponent implements Component
 	private ?\Siebels\Pedigree\Application $_Siebels_Pedigree_Application = null;
 
 
-	public function getApplication(): \Siebels\Pedigree\Application
-	{
-		return $this->getSiebels_Pedigree_Application();
-	}
-
-
 	protected function getSiebels_Pedigree_Parser(): \Siebels\Pedigree\Parser
 	{
 		return $this->_Siebels_Pedigree_Parser ??= new \Siebels\Pedigree\Parser();
@@ -42,20 +36,14 @@ class PedigreeComponent implements Component
 	}
 
 
-	protected function getSiebels_Pedigree_Processor(): \Siebels\Pedigree\Processor
+	public function getProcessor(): \Siebels\Pedigree\Processor
 	{
 		return $this->_Siebels_Pedigree_Processor ??= new \Siebels\Pedigree\Processor($this->getSiebels_Pedigree_Graph_DependencyGraphGenerator(), $this->getSiebels_Pedigree_Graph_ComponentFinder(), $this->getSiebels_Pedigree_Generation_ServiceCreationResolver());
 	}
 
 
-	protected function getSiebels_Pedigree_Application(): \Siebels\Pedigree\Application
+	public function getApplication(): \Siebels\Pedigree\Application
 	{
-		return $this->_Siebels_Pedigree_Application ??= new \Siebels\Pedigree\Application($this->getSiebels_Pedigree_Processor());
-	}
-
-
-	public function getProcessor(): \Siebels\Pedigree\Processor
-	{
-		return $this->getSiebels_Pedigree_Processor();
+		return $this->_Siebels_Pedigree_Application ??= new \Siebels\Pedigree\Application($this->getProcessor());
 	}
 }
