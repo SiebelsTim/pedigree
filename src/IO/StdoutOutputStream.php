@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Siebels\Pedigree\IO;
 
 final class StdoutOutputStream implements OutputStream

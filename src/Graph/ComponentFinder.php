@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Siebels\Pedigree\Graph;
 
 use PhpParser\Node;
@@ -24,9 +26,10 @@ final class ComponentFinder
         $stmts = $this->parser->parse($file);
 
         $nodeTraverser = new NodeTraverser();
-        $finder = new FindingVisitor(fn(Node $node) => $node instanceof Class_ && $node->namespacedName->toString() === $classString);
+        $finder = new FindingVisitor(fn(Node $node) => ($node instanceof Class_ || $node instanceof Node\Stmt\Interface_) && $node->namespacedName->toString() === $classString);
         $nodeTraverser->addVisitor($finder);
-        $classAST = $nodeTraverser->traverse($stmts)[0];
+        $nodeTraverser->traverse($stmts);
+        $classAST = $finder->getFoundNodes()[0];
 
         $finder = new FindingVisitor(fn(Node $node) => $node instanceof Node\Stmt\ClassMethod);
         $nodeTraverser = new NodeTraverser();
@@ -34,6 +37,7 @@ final class ComponentFinder
         $nodeTraverser->traverse([$classAST]);
         $methods = $finder->getFoundNodes();
 
-        return new Component(array_map(fn (Node\Stmt\ClassMethod $method) => new ComponentMethod($method->name->toString(), $method->getReturnType()), $methods));
+
+        return new Component($classString, array_map(fn (Node\Stmt\ClassMethod $method) => new ComponentMethod($method->name->toString(), $method->getReturnType()->toString()), $methods));
     }
 }

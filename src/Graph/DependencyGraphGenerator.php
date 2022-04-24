@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Siebels\Pedigree\Graph;
 
 use PhpParser\Node;
@@ -10,7 +12,7 @@ use Siebels\Pedigree\Graph\Model\Clazz;
 use Siebels\Pedigree\IO\File;
 use Siebels\Pedigree\Parser;
 
-final class DependencyAnalyser
+final class DependencyGraphGenerator
 {
     private Graph $graph;
 

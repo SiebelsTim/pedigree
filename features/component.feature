@@ -29,16 +29,12 @@ Feature: Creates ServiceLocator based on a Component
           private ?\Y $_Y = null;
           private ?\X $_X = null;
 
-          public function getStuff(): \X {
-            return $this->getX();
-          }
-
           protected function getY(): \Y {
               return $this->_Y ??= new \Y();
           }
 
-          protected function getX(): \X {
-              return $this->_X ??= new \X($this->getY());
+          public function getStuff(): \X {
+            return $this->_X ??= new \X($this->getY());
           }
       }
       """

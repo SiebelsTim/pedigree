@@ -5,8 +5,9 @@ namespace Siebels\Pedigree\DependencyInjection;
 class PedigreeComponent implements Component
 {
 	private ?\Siebels\Pedigree\Parser $_Siebels_Pedigree_Parser = null;
-	private ?\Siebels\Pedigree\Graph\DependencyAnalyser $_Siebels_Pedigree_Graph_DependencyAnalyser = null;
+	private ?\Siebels\Pedigree\Graph\DependencyGraphGenerator $_Siebels_Pedigree_Graph_DependencyGraphGenerator = null;
 	private ?\Siebels\Pedigree\Graph\ComponentFinder $_Siebels_Pedigree_Graph_ComponentFinder = null;
+	private ?\Siebels\Pedigree\Generation\ServiceCreationResolver $_Siebels_Pedigree_Generation_ServiceCreationResolver = null;
 	private ?\Siebels\Pedigree\Processor $_Siebels_Pedigree_Processor = null;
 	private ?\Siebels\Pedigree\Application $_Siebels_Pedigree_Application = null;
 
@@ -23,9 +24,9 @@ class PedigreeComponent implements Component
 	}
 
 
-	protected function getSiebels_Pedigree_Graph_DependencyAnalyser(): \Siebels\Pedigree\Graph\DependencyAnalyser
+	protected function getSiebels_Pedigree_Graph_DependencyGraphGenerator(): \Siebels\Pedigree\Graph\DependencyGraphGenerator
 	{
-		return $this->_Siebels_Pedigree_Graph_DependencyAnalyser ??= new \Siebels\Pedigree\Graph\DependencyAnalyser($this->getSiebels_Pedigree_Parser());
+		return $this->_Siebels_Pedigree_Graph_DependencyGraphGenerator ??= new \Siebels\Pedigree\Graph\DependencyGraphGenerator($this->getSiebels_Pedigree_Parser());
 	}
 
 
@@ -35,9 +36,15 @@ class PedigreeComponent implements Component
 	}
 
 
+	protected function getSiebels_Pedigree_Generation_ServiceCreationResolver(): \Siebels\Pedigree\Generation\ServiceCreationResolver
+	{
+		return $this->_Siebels_Pedigree_Generation_ServiceCreationResolver ??= new \Siebels\Pedigree\Generation\ServiceCreationResolver();
+	}
+
+
 	protected function getSiebels_Pedigree_Processor(): \Siebels\Pedigree\Processor
 	{
-		return $this->_Siebels_Pedigree_Processor ??= new \Siebels\Pedigree\Processor($this->getSiebels_Pedigree_Graph_DependencyAnalyser(), $this->getSiebels_Pedigree_Graph_ComponentFinder());
+		return $this->_Siebels_Pedigree_Processor ??= new \Siebels\Pedigree\Processor($this->getSiebels_Pedigree_Graph_DependencyGraphGenerator(), $this->getSiebels_Pedigree_Graph_ComponentFinder(), $this->getSiebels_Pedigree_Generation_ServiceCreationResolver());
 	}
 
 

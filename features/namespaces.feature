@@ -36,17 +36,12 @@ Feature: Creates a component with namespaces
           private ?\NS1\NS2\Y $_NS1_NS2_Y = null;
           private ?\NS1\X $_NS1_X = null;
 
-          public function getStuff(): \NS1\X {
-            return $this->getNS1_X();
-          }
-
           protected function getNS1_NS2_Y(): \NS1\NS2\Y {
               return $this->_NS1_NS2_Y ??= new \NS1\NS2\Y();
           }
 
-          protected function getNS1_X(): \NS1\X {
-              return $this->_NS1_X ??= new \NS1\X($this->getNS1_NS2_Y());
+          public function getStuff(): \NS1\X {
+            return $this->_NS1_X ??= new \NS1\X($this->getNS1_NS2_Y());
           }
-
       }
       """
