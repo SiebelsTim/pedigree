@@ -9,22 +9,22 @@ final class ComponentMethod
     public function __construct(
         private string $name,
         private string $returnType,
+        private bool   $isAbstract,
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getReturnType(): string
     {
         return $this->returnType;
+    }
+
+    public function isAbstract(): bool
+    {
+        return $this->isAbstract;
     }
 }

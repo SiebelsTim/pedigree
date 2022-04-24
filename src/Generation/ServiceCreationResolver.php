@@ -42,11 +42,11 @@ final class ServiceCreationResolver
         }
 
         $componentMethod = $component->findMethodForType($class);
-        $needsToBeGenerated = true; // TODO: must be isAbstract===true
+        $needsToBeGenerated = !$component->isAbstract() || ($componentMethod?->isAbstract() ?? true);
         $visibility = 'public';
 
         if (null === $componentMethod) {
-            $componentMethod = new ComponentMethod($this->getMethodNameForClass($class->getFqcn()), $class->getFqcn());
+            $componentMethod = new ComponentMethod($this->getMethodNameForClass($class->getFqcn()), $class->getFqcn(), true);
             $needsToBeGenerated = true;
             $visibility = 'protected';
         }

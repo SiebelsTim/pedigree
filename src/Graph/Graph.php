@@ -24,7 +24,7 @@ final class Graph
 
     public function getClass(string $class): Clazz
     {
-        return $this->classes[$class];
+        return $this->classes[$class] ?? throw new \RuntimeException("Class $class not found in graph");
     }
 
     public function addEntry(Clazz $class): void

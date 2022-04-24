@@ -12,6 +12,7 @@ final class Component
     public function __construct(
         private string $fqcn,
         private array $methods,
+        private bool $isAbstract,
     ) {
     }
 
@@ -37,5 +38,10 @@ final class Component
         }
 
         return null;
+    }
+
+    public function isAbstract(): bool
+    {
+        return $this->isAbstract;
     }
 }

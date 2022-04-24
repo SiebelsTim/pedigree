@@ -38,6 +38,6 @@ final class ComponentFinder
         $methods = $finder->getFoundNodes();
 
 
-        return new Component($classString, array_map(fn (Node\Stmt\ClassMethod $method) => new ComponentMethod($method->name->toString(), $method->getReturnType()->toString()), $methods));
+        return new Component($classString, array_map(fn (Node\Stmt\ClassMethod $method) => new ComponentMethod($method->name->toString(), $method->getReturnType()->toString(), $method->isAbstract()), $methods), $classAST instanceof Class_);
     }
 }

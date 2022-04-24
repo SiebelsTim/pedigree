@@ -36,7 +36,7 @@ final class Processor {
         foreach ($config->getComponents() as $component) {
             $componentModel = $this->componentFinder->findComponent($component, $graph);
             $this->creationResolver->read($graph, $componentModel);
-            
+
             $file = $this->createComponentImplementation($componentModel, $graph, $config);
             $o->write((new Printer())->printFile($file));
         }
@@ -49,7 +49,11 @@ final class Processor {
         $file = new PhpFile();
         $ns = $file->addNamespace($config->getNamespace() ?? 'Pedigree');
         $class = $ns->addClass($this->getComponentName($component->getFqcn()));
-        $class->addImplement($component->getFqcn());
+        if ($component->isAbstract()) {
+            $class->setExtends($component->getFqcn());
+        } else {
+            $class->addImplement($component->getFqcn());
+        }
 
         foreach ($component->getMethods() as $method) {
             $generatorMethod = $this->creationResolver->getServiceGeneratorMethod($graph->getClass($method->getReturnType()));
